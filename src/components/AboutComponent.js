@@ -1,13 +1,15 @@
 import React from 'react';
 import { Breadcrumb, BreadcrumbItem, Card, CardBody, CardHeader, Media } from 'reactstrap';
 import { Link } from 'react-router-dom';
-
+import { baseUrl } from '../shared/baseUrl';
+import { Loading } from './LoadingComponent';
+import { Fade, Stagger } from 'react-animation-components';
 
 function RenderPartner({partner}) {
     if (partner){
        return (
         <React.Fragment>
-            <Media object src={partner.image} alt={partner.image} width="150" />
+            <Media object src={baseUrl + partner.image} alt={partner.image} width="150" />
             <Media body className="ml-5 mb-4">
             <Media heading>{partner.name}</Media>
             {partner.description}
@@ -18,16 +20,41 @@ function RenderPartner({partner}) {
     return <div />;
 }
 
+function PartnerList(props) {
 
-function About(props) {
-
-    const partners = props.partners.map((partner) => {
+    const partners = props.partners.partners.map((partner) => {
         return (
-            <Media  tag="li" key={partner.id}>
-                <RenderPartner partner={partner} />
-            </Media>
+            <Fade in key={partner.id}>
+                <Media tag="li">
+                    <RenderPartner partner={partner} />
+                </Media>
+            </Fade>
         );
     });
+
+    if (props.partners.isLoading) {
+        return <Loading />;
+    }
+    if (props.partners.errMess) {
+        return (
+            <div className="col">
+                <h4>{props.partners.errMess}</h4>
+            </div>
+        );
+    }
+    return (
+        <div className="col mt-4">
+            <Media list>
+                <Stagger in>
+                    {partners}
+                </Stagger>
+            </Media>
+        </div>
+    );
+}
+
+
+function About(props) {
 
     return (
         <div className="container">
@@ -81,19 +108,11 @@ function About(props) {
                 <div className="col-12">
                     <h3>Community Partners</h3>
                 </div>
-                <div className="col mt-4">
-                    <Media list>
-                        {partners}
-                    </Media>
-                </div>
+                <PartnerList partners={props.partners} />
             </div>
         </div>
     );
 }
-
-
-
-
 
 
 export default About;
